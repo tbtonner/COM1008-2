@@ -8,13 +8,40 @@ canvas.height = canvas.scrollHeight;
 //Getting reference to the 2D drawing context
 var context = canvas.getContext("2d");
 
-//Function to draw the image
+//Setting the mouse object
+var mouse = {
+    x: undefined,
+    y: undefined
+}
+
+//Event listener when mouse moves
+window.addEventListener("mousemove", function(event){
+    mouse.x = event.x;
+    mouse.y = event.y;
+});
+
+
 function draw(){
     var img = new Image();
     img.onload = function() {
-        context.drawImage(img,50,50);
+        context.drawImage(img, x, y);
     }
     img.src = "./turtle1.png";
 }
 
-draw(context);
+function update(){
+    x = mouse.x;
+    y = mouse.y;
+
+    draw();
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    update();
+}
+
+x=600;
+y=200;
+
+animate();
