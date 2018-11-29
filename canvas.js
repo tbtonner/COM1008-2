@@ -2,8 +2,8 @@
 var canvas = document.getElementById("canvas");
 
 //Set drawing surface of canvas  to same size as the canvas
-canvas.width = canvas.scrollWidth;
-canvas.height = canvas.scrollHeight;
+canvas.width = window.innerWidth;
+canvas.height = 600;
 
 //Getting reference to the 2D drawing context
 var context = canvas.getContext("2d");
@@ -14,10 +14,33 @@ var mouse = {
     y: undefined
 }
 
+//Setting image height and width
+var imgWidth = 169;
+var imgHeight = 237;
+
+//Setting initial position of the turtle
+var x = (1/2 * canvas.width) - 1/2*imgWidth;
+var y = (1/2 * canvas.height) - 1/2*imgHeight;
+
 //Event listener when mouse moves
-window.addEventListener("mousemove", function(event){
+window.addEventListener("click", function(event){
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
     mouse.x = event.x;
     mouse.y = event.y;
+
+    x = mouse.x - 1/2*imgWidth;
+    y = mouse.y - 1/2*imgHeight;
+
+    draw();
+});
+
+//Event listener when window size is changed
+window.addEventListener("resize", function(){
+    canvas.width = window.innerWidth;
+    canvas.height = 600;
+
+    draw();
 });
 
 
@@ -36,12 +59,4 @@ function update(){
     draw();
 }
 
-function animate(){
-    requestAnimationFrame(animate);
-    update();
-}
-
-x=600;
-y=200;
-
-animate();
+draw();
