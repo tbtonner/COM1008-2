@@ -19,20 +19,30 @@ var imgWidth = 169;
 var imgHeight = 237;
 
 //Setting initial position of the turtle
-var x = (1/2 * canvas.width) - 1/2*imgWidth;
-var y = (1/2 * canvas.height) - 1/2*imgHeight;
+var xPos = (1/2 * canvas.width) - 1/2*imgWidth;
+var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
+
+//Variables of the line between current position and mouse click
+var m = (yPos-mouse.y)/(xPos-mouse.x);
+var c = yPos-m*xPos;
+var coords = [];
 
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
+    coords = [];
+
     context.clearRect(0, 0, canvas.width, canvas.height);
 
-    mouse.x = event.x;
-    mouse.y = event.y;
+    mouse.x = event.x - 1/2*imgWidth;
+    mouse.y = event.y- 1/2*imgHeight;
 
-    x = mouse.x - 1/2*imgWidth;
-    y = mouse.y - 1/2*imgHeight;
+    for (var xCurrent = xPos; xCurrent < mouse.x; xCurrent++) {
+        var yCurrent = m*xCurrent + c;
+        storeCoordinate(xCurrent, yCurrent, coords);
+    }
 
-    draw();
+    animate();
+
 });
 
 //Event listener when window size is changed
@@ -40,11 +50,17 @@ window.addEventListener("resize", function(){
     canvas.width = window.innerWidth;
     canvas.height = 600;
 
-    draw();
+    draw(xPos, yPos);
 });
 
+function storeCoordinate(xVal, yVal, array) {
+    array.push({
+        x: xVal,
+        y: yVal
+    });
+}
 
-function draw(){
+function draw(x, y){
     var img = new Image();
     img.onload = function() {
         context.drawImage(img, x, y);
@@ -52,11 +68,16 @@ function draw(){
     img.src = "./turtle1.png";
 }
 
-function update(){
-    x = mouse.x;
-    y = mouse.y;
+function animate(){
+    requestAnimationFrame(animate);
+    // context.clearRect(0, 0, canvas.width, canvas.height);
 
-    draw();
+    for (var i = 0; i < coords.length; i++) {
+        draw(coords[i].x, coords[i].y);
+        if (i == coords.length){
+            cancelAnimationFrame(animate);
+        }
+    }
 }
 
-draw();
+draw(xPos, yPos);
