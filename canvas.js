@@ -27,6 +27,7 @@ var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
 
 //Array for all coordinates
 var coords = [];
+var rotate = [];
 
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
@@ -66,9 +67,23 @@ window.addEventListener("click", function(event){
         }
     }
 
+    var division = 10;
+    maxRotate = ((Math.PI/2)+(Math.atan(m)*180/Math.PI))%(2*Math.PI);
+
+    console.log(maxRotate);
+    for (var i = 1; i < coords.length + 1; i++) {
+        if (i < 100) {
+            rotate.push(maxRotate*(i/division));
+        }else{
+            rotate.push(maxRotate);
+        }
+    }
+
     nextFrame(0);
 
 });
+
+var maxRotate = 0;
 
 //Event listener when window size is changed
 window.addEventListener("resize", function(){
@@ -93,17 +108,19 @@ function stop() {
 
 var img = new Image();
 
-function translate(x, y){
+function translate(x, y, rotation){
     context.clearRect(0, 0, canvas.width, canvas.height);
+
     context.save();
-    context.drawImage(img, x, y);
-    context.restore();
+    context.translate(x + imgWidth/2, y + imgHeight/2); // change origin
+    context.rotate(maxRotate);
+    context.drawImage(img,-imgWidth/2,-imgHeight/2);
+    context.restore()
+
 }
 
 function draw(x, y){
     context.clearRect(0, 0, canvas.width, canvas.height);
-
-    context.save();
     img.onload = function() {
         context.drawImage(img, x, y);
     }
@@ -113,7 +130,7 @@ function draw(x, y){
 function nextFrame(i) {
     xPos = coords[i].x
     yPos = coords[i].y;
-    translate(coords[i].x, coords[i].y);
+    translate(coords[i].x, coords[i].y, maxRotate);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
     });
