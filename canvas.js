@@ -24,6 +24,7 @@ var requestId;
 //Setting initial position of the turtle
 var xPos = (1/2 * canvas.width) - 1/2*imgWidth;
 var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
+var currentRotation = 0;
 
 //Array for all coordinates
 var coords = [];
@@ -67,15 +68,41 @@ window.addEventListener("click", function(event){
         }
     }
 
-    var division = 10;
-    maxRotate = ((Math.PI/2)+(Math.atan(m)*180/Math.PI))%(2*Math.PI);
+    var division = 50;
 
-    console.log(maxRotate);
+    if (mouse.x > xPos) {
+        if (mouse.y > yPos) {
+            var opp = Math.abs(mouse.x - xPos);
+            var adj = Math.abs(mouse.y - yPos);
+
+            maxRotate = (Math.atan(opp/adj))*(Math.PI/180);
+        }else{
+            var opp = Math.abs(mouse.y - yPos);
+            var adj = Math.abs(mouse.x - xPos);
+
+            maxRotate = (Math.atan(opp/adj))*(Math.PI/180) + (Math.PI/2);
+        }
+    }else {
+        if (mouse.y > yPos) {
+            var opp = Math.abs(mouse.x - xPos);
+            var adj = Math.abs(mouse.y - yPos);
+
+            maxRotate = (Math.atan(opp/adj))*(Math.PI/180) + (Math.PI);
+        }else{
+            var opp = Math.abs(mouse.y - yPos);
+            var adj = Math.abs(mouse.x - xPos);
+
+            maxRotate = (Math.atan(opp/adj))*(Math.PI/180) + (3*Math.PI/2);
+        }
+    }
+
     for (var i = 1; i < coords.length + 1; i++) {
-        if (i < 100) {
+        if (i < division) {
             rotate.push(maxRotate*(i/division));
+            console.log(rotate[i-1]);
         }else{
             rotate.push(maxRotate);
+            console.log(rotate[i-1]);
         }
     }
 
@@ -113,7 +140,7 @@ function translate(x, y, rotation){
 
     context.save();
     context.translate(x + imgWidth/2, y + imgHeight/2); // change origin
-    context.rotate(maxRotate);
+    context.rotate(rotation);
     context.drawImage(img,-imgWidth/2,-imgHeight/2);
     context.restore()
 
@@ -130,7 +157,7 @@ function draw(x, y){
 function nextFrame(i) {
     xPos = coords[i].x
     yPos = coords[i].y;
-    translate(coords[i].x, coords[i].y, maxRotate);
+    translate(coords[i].x, coords[i].y, rotate[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
     });
