@@ -33,6 +33,7 @@ var rotate = [];
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
     coords = [];
+    rotate = [];
     mouse.x = event.x - 1/2*imgWidth;
     mouse.y = event.y- 1/2*imgHeight;
 
@@ -40,36 +41,7 @@ window.addEventListener("click", function(event){
     var m = (yPos-mouse.y)/(xPos-mouse.x);
     var c = yPos-m*xPos;
 
-    var speed = 3;
-
-    if (Math.abs(yPos-mouse.y)>Math.abs(xPos-mouse.x)) {
-        if (mouse.y > yPos) {
-            for (var yCurrent = yPos; yCurrent < mouse.y; yCurrent=yCurrent+speed) {
-                var xCurrent = (yCurrent - c)/m;
-                storeCoordinate(xCurrent, yCurrent, coords);
-            }
-        }else{
-            for (var yCurrent = yPos; yCurrent > mouse.y; yCurrent=yCurrent-speed) {
-                var xCurrent = (yCurrent - c)/m;
-                storeCoordinate(xCurrent, yCurrent, coords);
-            }
-        }
-    }else{
-        if (mouse.x > xPos) {
-            for (var xCurrent = xPos; xCurrent < mouse.x; xCurrent=xCurrent+speed) {
-                var yCurrent = m*xCurrent + c;
-                storeCoordinate(xCurrent, yCurrent, coords);
-            }
-        }else{
-            for (var xCurrent = xPos; xCurrent > mouse.x; xCurrent=xCurrent-speed) {
-                var yCurrent = m*xCurrent + c;
-                storeCoordinate(xCurrent, yCurrent, coords);
-            }
-        }
-    }
-
-    var division = 25;
-    var booClockwise = true;
+    var division = 100;
 
     if (mouse.x > xPos) {
         if (mouse.y < yPos) {
@@ -83,7 +55,6 @@ window.addEventListener("click", function(event){
             maxRotate = (Math.atan(opp/adj)) + (Math.PI/2);
         }
     }else {
-        booClockwise = false;
         if (mouse.y > yPos) {
             var opp = Math.abs(mouse.x - xPos);
             var adj = Math.abs(mouse.y - yPos);
@@ -97,24 +68,56 @@ window.addEventListener("click", function(event){
         }
     }
 
-    if (Math.abs(currentRotation - maxRotate) < Math.PI ) {
-        for (var i = 1; i < coords.length + 1; i++) {
-            if (i < division) {
-                rotate.push(maxRotate*(i/division));
-            }else{
+    var clockwise = false;
+    var diffAngle = Math.abs(currentRotation - maxRotate);
+
+    if (diffAngle < Math.PI) {
+        clockwise = true;
+    }
+
+    if (clockwise == true) {
+        for (var i = division; i > 0; i--) {
+            rotate.push((currentRotation + diffAngle/i) % (Math.PI*2));
+            storeCoordinate(xPos, yPos, coords);
+        }
+    }else {
+        for (var i = division; i > 0; i--) {
+            rotate.push((currentRotation - diffAngle/i) % (Math.PI*2));
+            storeCoordinate(xPos, yPos, coords);
+        }
+    }
+
+    var speed = 3;
+
+    if (Math.abs(yPos-mouse.y)>Math.abs(xPos-mouse.x)) {
+        if (mouse.y > yPos) {
+            for (var yCurrent = yPos; yCurrent < mouse.y; yCurrent=yCurrent+speed) {
+                var xCurrent = (yCurrent - c)/m;
+                storeCoordinate(xCurrent, yCurrent, coords);
+                rotate.push(maxRotate);
+            }
+        }else{
+            for (var yCurrent = yPos; yCurrent > mouse.y; yCurrent=yCurrent-speed) {
+                var xCurrent = (yCurrent - c)/m;
+                storeCoordinate(xCurrent, yCurrent, coords);
                 rotate.push(maxRotate);
             }
         }
-    }else {
-        for (var i = 1; i < coords.length + 1; i++) {
-            if (i < division) {
-                rotate.push(maxRotate*(division/i));
-            }else{
+    }else{
+        if (mouse.x > xPos) {
+            for (var xCurrent = xPos; xCurrent < mouse.x; xCurrent=xCurrent+speed) {
+                var yCurrent = m*xCurrent + c;
+                storeCoordinate(xCurrent, yCurrent, coords);
+                rotate.push(maxRotate);
+            }
+        }else{
+            for (var xCurrent = xPos; xCurrent > mouse.x; xCurrent=xCurrent-speed) {
+                var yCurrent = m*xCurrent + c;
+                storeCoordinate(xCurrent, yCurrent, coords);
                 rotate.push(maxRotate);
             }
         }
     }
-
 
     nextFrame(0);
 
@@ -167,6 +170,7 @@ function draw(x, y){
 function nextFrame(i) {
     xPos = coords[i].x
     yPos = coords[i].y;
+    currentRotation = rotate[i];
     translate(coords[i].x, coords[i].y, rotate[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
