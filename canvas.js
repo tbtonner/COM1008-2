@@ -68,43 +68,53 @@ window.addEventListener("click", function(event){
         }
     }
 
-    var division = 50;
+    var division = 25;
+    var booClockwise = true;
 
     if (mouse.x > xPos) {
-        if (mouse.y > yPos) {
+        if (mouse.y < yPos) {
             var opp = Math.abs(mouse.x - xPos);
             var adj = Math.abs(mouse.y - yPos);
-
-            maxRotate = (Math.atan(opp/adj))*(Math.PI/180);
+            maxRotate = (Math.atan(opp/adj));
         }else{
             var opp = Math.abs(mouse.y - yPos);
             var adj = Math.abs(mouse.x - xPos);
 
-            maxRotate = (Math.atan(opp/adj))*(Math.PI/180) + (Math.PI/2);
+            maxRotate = (Math.atan(opp/adj)) + (Math.PI/2);
         }
     }else {
+        booClockwise = false;
         if (mouse.y > yPos) {
             var opp = Math.abs(mouse.x - xPos);
             var adj = Math.abs(mouse.y - yPos);
 
-            maxRotate = (Math.atan(opp/adj))*(Math.PI/180) + (Math.PI);
+            maxRotate = (Math.atan(opp/adj)) + (Math.PI);
         }else{
             var opp = Math.abs(mouse.y - yPos);
             var adj = Math.abs(mouse.x - xPos);
 
-            maxRotate = (Math.atan(opp/adj))*(Math.PI/180) + (3*Math.PI/2);
+            maxRotate = (Math.atan(opp/adj)) + (3*Math.PI/2);
         }
     }
 
-    for (var i = 1; i < coords.length + 1; i++) {
-        if (i < division) {
-            rotate.push(maxRotate*(i/division));
-            console.log(rotate[i-1]);
-        }else{
-            rotate.push(maxRotate);
-            console.log(rotate[i-1]);
+    if (Math.abs(currentRotation - maxRotate) < Math.PI ) {
+        for (var i = 1; i < coords.length + 1; i++) {
+            if (i < division) {
+                rotate.push(maxRotate*(i/division));
+            }else{
+                rotate.push(maxRotate);
+            }
+        }
+    }else {
+        for (var i = 1; i < coords.length + 1; i++) {
+            if (i < division) {
+                rotate.push(maxRotate*(division/i));
+            }else{
+                rotate.push(maxRotate);
+            }
         }
     }
+
 
     nextFrame(0);
 
