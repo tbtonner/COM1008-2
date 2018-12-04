@@ -32,10 +32,27 @@ var rotate = [];
 
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
-    coords = [];
-    rotate = [];
+    if (event.y- 1/2*imgHeight <= 482) {
+        clickOnCanvas();
+    }
+});
+
+var maxRotate = 0;
+
+//Event listener when window size is changed
+window.addEventListener("resize", function(){
+    canvas.width = window.innerWidth;
+    canvas.height = 600;
+
+    draw(xPos, yPos);
+});
+
+function clickOnCanvas(){
     mouse.x = event.x - 1/2*imgWidth;
     mouse.y = event.y- 1/2*imgHeight;
+
+    coords = [];
+    rotate = [];
 
     //Variables of the line between current position and mouse click
     var m = (yPos-mouse.y)/(xPos-mouse.x);
@@ -78,16 +95,15 @@ window.addEventListener("click", function(event){
         }
     }
 
-    console.log(clockwise);
 
     if (clockwise == true) {
-        var diffAngle = Math.abs(modulo((maxRotate - currentRotation), (Math.PI * 2)));
+        var diffAngle = modulo((maxRotate - currentRotation), (Math.PI * 2));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation + i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
         }
     }else {
-        var diffAngle = Math.abs(modulo((currentRotation - maxRotate), (Math.PI * 2)));
+        var diffAngle = modulo((currentRotation - maxRotate), (Math.PI * 2));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation - i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
@@ -128,17 +144,31 @@ window.addEventListener("click", function(event){
 
     nextFrame(0);
 
-});
+}
 
-var maxRotate = 0;
+function btnReset(){
+    xPos = (1/2 * canvas.width) - 1/2*imgWidth;
+    yPos = (1/2 * canvas.height) - 1/2*imgHeight;
+    currentRotation = 0;
 
-//Event listener when window size is changed
-window.addEventListener("resize", function(){
-    canvas.width = window.innerWidth;
-    canvas.height = 600;
+    coords = [];
+    rotate = [];
 
+    nextFrame(0);
     draw(xPos, yPos);
-});
+}
+
+function btnDance(){
+    console.log("Dance");
+}
+
+function btnSleep(){
+    console.log("Sleep");
+}
+
+function btnColour(){
+    console.log("Change Colour");
+}
 
 function modulo(n, m) {
     return ((n % m) + m) % m;
@@ -179,10 +209,12 @@ function draw(x, y){
 }
 
 function nextFrame(i) {
+    if (coords.length == 0){
+        return;
+    }
     xPos = coords[i].x
     yPos = coords[i].y;
     currentRotation = rotate[i];
-    console.log(rotate[i]);
     translate(coords[i].x, coords[i].y, rotate[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
