@@ -159,15 +159,15 @@ function btnReset(){
 }
 
 function btnDance(){
-    console.log("Dance");
+
 }
 
 function btnSleep(){
-    console.log("Sleep");
+
 }
 
 function btnColour(){
-    console.log("Change Colour");
+
 }
 
 function modulo(n, m) {
@@ -205,7 +205,7 @@ function draw(x, y){
     img.onload = function() {
         context.drawImage(img, x, y);
     }
-    img.src = "./turtle1.png";
+    img.src = "./turtle.png";
 }
 
 function nextFrame(i) {
