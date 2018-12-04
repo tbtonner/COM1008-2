@@ -69,7 +69,6 @@ window.addEventListener("click", function(event){
     }
 
     var clockwise = false;
-    var diffAngle = Math.abs(modulo(currentRotation - maxRotate, (Math.PI*2)));
 
     for (var i = 0; i < 180; i++) {
         if (modulo((currentRotation + i*(Math.PI/180)), (Math.PI*2)) <= maxRotate) {
@@ -82,11 +81,13 @@ window.addEventListener("click", function(event){
     console.log(clockwise);
 
     if (clockwise == true) {
+        var diffAngle = Math.abs(modulo((maxRotate - currentRotation), (Math.PI * 2)));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation + i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
         }
     }else {
+        var diffAngle = Math.abs(modulo((currentRotation - maxRotate), (Math.PI * 2)));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation - i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
