@@ -41,7 +41,7 @@ window.addEventListener("click", function(event){
     var m = (yPos-mouse.y)/(xPos-mouse.x);
     var c = yPos-m*xPos;
 
-    var division = 100;
+    var division = 50;
 
     if (mouse.x > xPos) {
         if (mouse.y < yPos) {
@@ -69,20 +69,26 @@ window.addEventListener("click", function(event){
     }
 
     var clockwise = false;
-    var diffAngle = Math.abs(currentRotation - maxRotate);
+    var diffAngle = Math.abs(modulo(currentRotation - maxRotate, (Math.PI*2)));
 
-    if (diffAngle < Math.PI) {
-        clockwise = true;
+    for (var i = 0; i < 180; i++) {
+        if (modulo((currentRotation + i*(Math.PI/180)), (Math.PI*2)) <= maxRotate) {
+            if (modulo((currentRotation + (i+1)*(Math.PI/180)), (Math.PI*2)) >= maxRotate) {
+                clockwise = true;
+            }
+        }
     }
 
+    console.log(clockwise);
+
     if (clockwise == true) {
-        for (var i = division; i > 0; i--) {
-            rotate.push((currentRotation + diffAngle/i) % (Math.PI*2));
+        for (var i = 0; i < division; i++) {
+            rotate.push(modulo((currentRotation + i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
         }
     }else {
-        for (var i = division; i > 0; i--) {
-            rotate.push((currentRotation - diffAngle/i) % (Math.PI*2));
+        for (var i = 0; i < division; i++) {
+            rotate.push(modulo((currentRotation - i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
         }
     }
@@ -133,6 +139,10 @@ window.addEventListener("resize", function(){
     draw(xPos, yPos);
 });
 
+function modulo(n, m) {
+    return ((n % m) + m) % m;
+}
+
 function storeCoordinate(xVal, yVal, array) {
     array.push({
         x: xVal,
@@ -171,6 +181,7 @@ function nextFrame(i) {
     xPos = coords[i].x
     yPos = coords[i].y;
     currentRotation = rotate[i];
+    console.log(rotate[i]);
     translate(coords[i].x, coords[i].y, rotate[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
