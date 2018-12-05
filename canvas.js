@@ -25,14 +25,21 @@ var requestId;
 var xPos = (1/2 * canvas.width) - 1/2*imgWidth;
 var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
 var currentRotation = 0;
+var imgSource = "./turtle.png";
 
 //Array for all coordinates
 var coords = [];
 var rotate = [];
+var image = [];
 
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
-    if (event.y- 1/2*imgHeight <= 482) {
+    var xMouse = event.x - 1/2*imgWidth;
+    var yMouse = event.y- 1/2*imgHeight;
+
+    if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) {
+        clickOnTurtle();
+    }else if (yMouse <= 482) {
         clickOnCanvas();
     }
 });
@@ -47,12 +54,52 @@ window.addEventListener("resize", function(){
     draw(xPos, yPos);
 });
 
+function clickOnTurtle(){
+    mouse.x = event.x - 1/2*imgWidth;
+    mouse.y = event.y- 1/2*imgHeight;
+
+    coords = [];
+    rotate = [];
+    image = [];
+
+    for (var i = 0; i < 55; i++) {
+        if (i < 5) {
+            image.push("./turtle.png");
+        }else if (i < 10) {
+            image.push("./turtleGoingToShell1.png");
+        }else if (i < 15) {
+            image.push("./turtleGoingToShell2.png");
+        }else if (i < 20) {
+            image.push("./turtleGoingToShell3.png");
+        }else if (i < 25) {
+            image.push("./turtleGoingToShell4.png");
+        }else if (i < 30) {
+            image.push("./turtleGoingToShell5.png");
+        }else if (i < 35) {
+            image.push("./turtleGoingToShell6.png");
+        }else if (i < 40) {
+            image.push("./turtleGoingToShell7.png");
+        }else if (i < 45) {
+            image.push("./turtleGoingToShell8.png");
+        }else if (i < 50) {
+            image.push("./turtleGoingToShell9.png");
+        }else if (i < 55) {
+            image.push("./turtleInShell.png");
+        }
+        rotate.push(currentRotation);
+        storeCoordinate(xPos, yPos, coords);
+
+        nextFrame(0);
+    }
+}
+
 function clickOnCanvas(){
     mouse.x = event.x - 1/2*imgWidth;
     mouse.y = event.y- 1/2*imgHeight;
 
     coords = [];
     rotate = [];
+    image = [];
 
     //Variables of the line between current position and mouse click
     var m = (yPos-mouse.y)/(xPos-mouse.x);
@@ -142,6 +189,10 @@ function clickOnCanvas(){
         }
     }
 
+    for (var i = 0; i < coords.length; i++) {
+        image.push("./turtle.png");
+    }
+
     nextFrame(0);
 
 }
@@ -150,9 +201,11 @@ function btnReset(){
     xPos = (1/2 * canvas.width) - 1/2*imgWidth;
     yPos = (1/2 * canvas.height) - 1/2*imgHeight;
     currentRotation = 0;
+    imgSource = "./turtle.png";
 
     coords = [];
     rotate = [];
+    image = [];
 
     nextFrame(0);
     draw(xPos, yPos);
@@ -189,14 +242,19 @@ function stop() {
 
 var img = new Image();
 
-function translate(x, y, rotation){
+function translate(x, y, rotation, imageSrc){
+    if (imageSrc != imgSource) {
+        imgSource = imageSrc;
+        draw((1/2 * canvas.width) - 1/2*imgWidth, (1/2 * canvas.height) - 1/2*imgHeight);
+    }
+
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     context.save();
     context.translate(x + imgWidth/2, y + imgHeight/2); // change origin
     context.rotate(rotation);
     context.drawImage(img,-imgWidth/2,-imgHeight/2);
-    context.restore()
+    context.restore();
 
 }
 
@@ -204,18 +262,19 @@ function draw(x, y){
     context.clearRect(0, 0, canvas.width, canvas.height);
     img.onload = function() {
         context.drawImage(img, x, y);
-    }
-    img.src = "./turtle.png";
+    };
+    img.src = imgSource;
 }
 
 function nextFrame(i) {
     if (coords.length == 0){
         return;
     }
-    xPos = coords[i].x
+    xPos = coords[i].x;
     yPos = coords[i].y;
     currentRotation = rotate[i];
-    translate(coords[i].x, coords[i].y, rotate[i]);
+
+    translate(coords[i].x, coords[i].y, rotate[i], image[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
     });
