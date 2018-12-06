@@ -32,10 +32,13 @@ var goingIntoShell = false;
 //Array for all coordinates
 var coords = [];
 var rotate = [];
+var sleep1 = [];
+var sleep2 = [];
+var sleep3 = [];
 
 var imgSource = ["./turtle.png", "./turtleGoingToShell1.png", "./turtleGoingToShell2.png", "./turtleGoingToShell3.png",
 "./turtleGoingToShell4.png", "./turtleGoingToShell5.png", "./turtleGoingToShell6.png", "./turtleGoingToShell7.png",
- "./turtleGoingToShell8.png", "./turtleGoingToShell9.png", "./turtleInShell.png"];
+ "./turtleGoingToShell8.png", "./turtleGoingToShell9.png", "./turtleInShell.png", "./turtleSleep.png", "./turtleLaser.png"];
 
 var img = new Array(imgSource.length);
 var loadcount = 0;
@@ -47,7 +50,7 @@ function loadImages() {
         image.onload = function () {
             loadcount++;
             if (loadcount == loadtotal) {
-                draw(xPos, yPos, currentRotation, 0);
+                draw(xPos, yPos, currentRotation, 0, false, false, false);
             }
         };
 
@@ -85,11 +88,19 @@ function clickOnTurtle(){
     coords = [];
     rotate = [];
     imageIndex = [];
+    sleep1 = [];
+    sleep2 = [];
+    sleep3 = [];
 
     goingIntoShell = !goingIntoShell;
 
+    if (currentImageIndex == 11) {
+        draw(xPos, yPos, currentRotation, 0);
+        currentImageIndex = 0;
+    }
+
     if (goingIntoShell) {
-        for (var i = currentImageIndex; i < img.length; i++) {
+        for (var i = currentImageIndex; i < 11; i++) {
             for (var t = 0; t < 5; t++) {
                 imageIndex.push(i);
                 rotate.push(currentRotation);
@@ -97,13 +108,19 @@ function clickOnTurtle(){
             }
         }
     }else{
-        for (var i = currentImageIndex; i > 0; i--) {
+        for (var i = currentImageIndex; i >= 0; i--) {
             for (var t = 0; t < 5; t++) {
                 imageIndex.push(i);
                 rotate.push(currentRotation);
                 storeCoordinate(xPos, yPos, coords);
             }
         }
+    }
+
+    for (var i = 0; i < coords.length; i++) {
+        sleep1.push(false);
+        sleep2.push(false);
+        sleep3.push(false);
     }
 
     nextFrame(0);
@@ -116,6 +133,14 @@ function clickOnCanvas(){
     coords = [];
     rotate = [];
     imageIndex = [];
+    sleep1 = [];
+    sleep2 = [];
+    sleep3 = [];
+
+    if (currentImageIndex == 11) {
+        draw(xPos, yPos, currentRotation, 0);
+        currentImageIndex = 0;
+    }
 
     if (currentImageIndex != 0) {
         goingIntoShell = false;
@@ -220,6 +245,12 @@ function clickOnCanvas(){
         imageIndex.push(0);
     }
 
+    for (var i = 0; i < coords.length; i++) {
+        sleep1.push(false);
+        sleep2.push(false);
+        sleep3.push(false);
+    }
+
     nextFrame(0);
 
 }
@@ -234,6 +265,9 @@ function btnReset(){
     coords = [];
     rotate = [];
     imageIndex = [];
+    sleep1 = [];
+    sleep2 = [];
+    sleep3 = [];
 
     draw(xPos, yPos, currentRotation, 0);
 }
@@ -242,12 +276,20 @@ function btnDance(){
     coords = [];
     rotate = [];
     imageIndex = [];
+    sleep1 = [];
+    sleep2 = [];
+    sleep3 = [];
+
+    if (currentImageIndex == 11) {
+        draw(xPos, yPos, currentRotation, 0);
+        currentImageIndex = 0;
+    }
 
     var division = 50;
 
     if (currentImageIndex != 0) {
         goingIntoShell = false;
-        for (var i = currentImageIndex; i > 0; i--) {
+        for (var i = currentImageIndex; i >= 0; i--) {
             for (var t = 0; t < 5; t++) {
                 imageIndex.push(i);
                 rotate.push(currentRotation);
@@ -341,14 +383,71 @@ function btnDance(){
         imageIndex.push(0);
     }
 
+    for (var i = 0; i < coords.length; i++) {
+        sleep1.push(false);
+        sleep2.push(false);
+        sleep3.push(false);
+    }
+
     nextFrame(0);
 }
 
 function btnSleep(){
+    coords = [];
+    rotate = [];
+    imageIndex = [];
+    sleep1 = []
+    sleep2 = []
+    sleep3 = []
 
+    if (currentImageIndex == 11) {
+        imageIndex.push(0);
+        rotate.push(currentRotation);
+        storeCoordinate(xPos, yPos, coords);
+    }else{
+        if (currentImageIndex != 0) {
+            goingIntoShell = false;
+            for (var i = currentImageIndex; i >= 0; i--) {
+                for (var t = 0; t < 5; t++) {
+                    imageIndex.push(i);
+                    rotate.push(currentRotation);
+                    storeCoordinate(xPos, yPos, coords);
+                    sleep1.push(false);
+                    sleep2.push(false);
+                    sleep3.push(false);
+                }
+            }
+        }
+
+        for (var i = 0; i < 160; i++) {
+            imageIndex.push(11);
+            rotate.push(currentRotation);
+            storeCoordinate(xPos, yPos, coords);
+            if (i < 40) {
+
+                sleep1.push(false);
+                sleep2.push(false);
+                sleep3.push(false);
+            }else if (i < 80) {
+                sleep1.push(true);
+                sleep2.push(false);
+                sleep3.push(false);
+            }else if (i < 120) {
+                sleep1.push(true);
+                sleep2.push(true);
+                sleep3.push(false);
+            }else if (i < 160) {
+                sleep1.push(true);
+                sleep2.push(true);
+                sleep3.push(true);
+            }
+        }
+    }
+
+    nextFrame(0);
 }
 
-function btnColour(){
+function btnWalk(){
 
 }
 
@@ -369,12 +468,26 @@ function stop() {
     }
 }
 
-function draw(x, y, rotation, imgIndex){
+function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     context.save();
     context.translate(x + imgWidth/2, y + imgHeight/2); // change origin
     context.rotate(rotation);
+    if (sleep_1) {
+        context.font = "25px Arial";
+        context.fillText("Z",-75,-100);
+    }
+
+    if (sleep_2) {
+        context.font = "50px Arial";
+        context.fillText("Z",-105,-140);
+    }
+
+    if (sleep_3) {
+        context.font = "75px Arial";
+        context.fillText("Z",-150,-200);
+    }
     context.drawImage(img[imgIndex],-imgWidth/2,-imgHeight/2);
     context.restore();
 
@@ -390,7 +503,7 @@ function nextFrame(i) {
     currentRotation = rotate[i];
     currentImageIndex = imageIndex[i];
 
-    draw(coords[i].x, coords[i].y, rotate[i], imageIndex[i]);
+    draw(coords[i].x, coords[i].y, rotate[i], imageIndex[i], sleep1[i], sleep2[i], sleep3[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
     });
