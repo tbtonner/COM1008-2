@@ -25,12 +25,34 @@ var requestId;
 var xPos = (1/2 * canvas.width) - 1/2*imgWidth;
 var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
 var currentRotation = 0;
-var imgSource = "./turtle.png";
+var inShell = false;
 
 //Array for all coordinates
 var coords = [];
 var rotate = [];
-var image = [];
+
+var imgSource = ["./turtle.png", "./turtleGoingToShell1.png", "./turtleGoingToShell2.png", "./turtleGoingToShell3.png",
+"./turtleGoingToShell4.png", "./turtleGoingToShell5.png", "./turtleGoingToShell6.png", "./turtleGoingToShell7.png",
+ "./turtleGoingToShell8.png", "./turtleGoingToShell9.png", "./turtleInShell.png"];
+
+var img = new Array(imgSource.length);
+var loadcount = 0;
+loadtotal = imgSource.length;
+
+function loadImages() {
+    for (var i=0; i<imgSource.length; i++) {
+        var image = new Image();
+        image.onload = function () {
+            loadcount++;
+            if (loadcount == loadtotal) {
+                translate(xPos, yPos, currentRotation, 0);
+            }
+        };
+
+        image.src = imgSource[i];
+        img[i] = image;
+    }
+}
 
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
@@ -60,37 +82,69 @@ function clickOnTurtle(){
 
     coords = [];
     rotate = [];
-    image = [];
+    imageIndex = [];
 
-    for (var i = 0; i < 55; i++) {
-        if (i < 5) {
-            image.push("./turtle.png");
-        }else if (i < 10) {
-            image.push("./turtleGoingToShell1.png");
-        }else if (i < 15) {
-            image.push("./turtleGoingToShell2.png");
-        }else if (i < 20) {
-            image.push("./turtleGoingToShell3.png");
-        }else if (i < 25) {
-            image.push("./turtleGoingToShell4.png");
-        }else if (i < 30) {
-            image.push("./turtleGoingToShell5.png");
-        }else if (i < 35) {
-            image.push("./turtleGoingToShell6.png");
-        }else if (i < 40) {
-            image.push("./turtleGoingToShell7.png");
-        }else if (i < 45) {
-            image.push("./turtleGoingToShell8.png");
-        }else if (i < 50) {
-            image.push("./turtleGoingToShell9.png");
-        }else if (i < 55) {
-            image.push("./turtleInShell.png");
+    if (inShell) {
+        inShell = !inShell;
+        for (var i = 0; i < 55; i++) {
+            if (i < 5) {
+                imageIndex.push(10);
+            }else if (i < 10) {
+                imageIndex.push(9);
+            }else if (i < 15) {
+                imageIndex.push(8);
+            }else if (i < 20) {
+                imageIndex.push(7);
+            }else if (i < 25) {
+                imageIndex.push(6);
+            }else if (i < 30) {
+                imageIndex.push(5);
+            }else if (i < 35) {
+                imageIndex.push(4);
+            }else if (i < 40) {
+                imageIndex.push(3);
+            }else if (i < 45) {
+                imageIndex.push(2);
+            }else if (i < 50) {
+                imageIndex.push(1);
+            }else if (i < 55) {
+                imageIndex.push(0);
+            }
+            rotate.push(currentRotation);
+            storeCoordinate(xPos, yPos, coords);
         }
-        rotate.push(currentRotation);
-        storeCoordinate(xPos, yPos, coords);
-
-        nextFrame(0);
+    }else{
+        inShell = !inShell;
+        for (var i = 0; i < 55; i++) {
+            if (i < 5) {
+                imageIndex.push(0);
+            }else if (i < 10) {
+                imageIndex.push(1);
+            }else if (i < 15) {
+                imageIndex.push(2);
+            }else if (i < 20) {
+                imageIndex.push(3);
+            }else if (i < 25) {
+                imageIndex.push(4);
+            }else if (i < 30) {
+                imageIndex.push(5);
+            }else if (i < 35) {
+                imageIndex.push(6);
+            }else if (i < 40) {
+                imageIndex.push(7);
+            }else if (i < 45) {
+                imageIndex.push(8);
+            }else if (i < 50) {
+                imageIndex.push(9);
+            }else if (i < 55) {
+                imageIndex.push(10);
+            }
+            rotate.push(currentRotation);
+            storeCoordinate(xPos, yPos, coords);
+        }
     }
+
+    nextFrame(0);
 }
 
 function clickOnCanvas(){
@@ -99,7 +153,7 @@ function clickOnCanvas(){
 
     coords = [];
     rotate = [];
-    image = [];
+    imageIndex = [];
 
     //Variables of the line between current position and mouse click
     var m = (yPos-mouse.y)/(xPos-mouse.x);
@@ -190,7 +244,7 @@ function clickOnCanvas(){
     }
 
     for (var i = 0; i < coords.length; i++) {
-        image.push("./turtle.png");
+        imageIndex.push(0);
     }
 
     nextFrame(0);
@@ -201,14 +255,14 @@ function btnReset(){
     xPos = (1/2 * canvas.width) - 1/2*imgWidth;
     yPos = (1/2 * canvas.height) - 1/2*imgHeight;
     currentRotation = 0;
-    imgSource = "./turtle.png";
+
+    inShell = false;
 
     coords = [];
     rotate = [];
-    image = [];
+    imageIndex = [];
 
-    nextFrame(0);
-    draw(xPos, yPos);
+    translate(xPos, yPos, currentRotation, 0);
 }
 
 function btnDance(){
@@ -240,30 +294,15 @@ function stop() {
     }
 }
 
-var img = new Image();
-
-function translate(x, y, rotation, imageSrc){
-    if (imageSrc != imgSource) {
-        imgSource = imageSrc;
-        draw((1/2 * canvas.width) - 1/2*imgWidth, (1/2 * canvas.height) - 1/2*imgHeight);
-    }
-
+function translate(x, y, rotation, imgIndex){
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     context.save();
     context.translate(x + imgWidth/2, y + imgHeight/2); // change origin
     context.rotate(rotation);
-    context.drawImage(img,-imgWidth/2,-imgHeight/2);
+    context.drawImage(img[imgIndex],-imgWidth/2,-imgHeight/2);
     context.restore();
 
-}
-
-function draw(x, y){
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    img.onload = function() {
-        context.drawImage(img, x, y);
-    };
-    img.src = imgSource;
 }
 
 function nextFrame(i) {
@@ -274,7 +313,7 @@ function nextFrame(i) {
     yPos = coords[i].y;
     currentRotation = rotate[i];
 
-    translate(coords[i].x, coords[i].y, rotate[i], image[i]);
+    translate(coords[i].x, coords[i].y, rotate[i], imageIndex[i]);
     requestId = requestAnimationFrame(function() {
         nextFrame(i);
     });
@@ -285,4 +324,4 @@ function nextFrame(i) {
     }
 }
 
-draw(xPos, yPos);
+loadImages();

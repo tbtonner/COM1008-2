@@ -1,96 +1,58 @@
-var canvas = document.querySelector('canvas');
+//Reference from the HTML page
+var canvas = document.getElementById("canvas");
 
+//Set drawing surface of canvas  to same size as the canvas
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.height = 600;
 
-var c = canvas.getContext('2d');
+//Getting reference to the 2D drawing context
+var context = canvas.getContext("2d");
 
-var mouse = {
-    x: undefined,
-    y: undefined
-}
+//Setting image height and width
+var imgWidth = 169;
+var imgHeight = 237;
 
-var maxRadius = 50;
-var mouseDistance = 100;
-var minRadius = 15;
+//Setting initial position of the turtle
+var xPos = (1/2 * canvas.width) - 1/2*imgWidth;
+var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
 
-var colourArray = ["#2c3e50", "#e74c3c", "#ecf0f1", "#3498db", "#298089"];
+var imgSource = ["./turtle.png", "./turtleGoingToShell1.png", "./turtleGoingToShell2.png", "./turtleGoingToShell3.png",
+"./turtleGoingToShell4.png", "./turtleGoingToShell5.png", "./turtleGoingToShell6.png", "./turtleGoingToShell7.png",
+ "./turtleGoingToShell8.png", "./turtleGoingToShell9.png", "./turtleInShell.png"];
 
-window.addEventListener("mousemove", function(event){
-    mouse.x = event.x;
-    mouse.y = event.y;
-});
+function imgpreload(imgs) {
 
-window.addEventListener("resize", function(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    function callback (){}
 
-    init();
-});
+    var loaded = 0;
+    images = [];
 
-function Circle(x, dx, y, dy, radius){
-    this.x = x;
-    this.y = y;
-    this.dx = dx;
-    this.dy = dy;
-    this.radius = radius;
-    this.colour = colourArray[Math.floor(Math.random()*colourArray.length)];
-    this.minRadius = radius;
+    imgs = Object.prototype.toString.apply(imgs) === '[object Array]' ? imgs : [imgs];
 
-    this.draw = function(){
-        c.beginPath();
-        c.arc(this.x, this.y, this.radius, 0, Math.PI*2, false);
-        c.fillStyle = this.colour;
-        c.fill();
-    }
-
-    this.update = function(){
-        if (this.x + this.radius > innerWidth || this.x - this.radius < 0){
-            this.dx = -this.dx;
+    var inc = function() {
+        loaded += 1;
+        if ( loaded === imgs.length && callback ) {
+            callback();
         }
-        if (this.y + this.radius > innerHeight || this.y - this.radius < 0){
-            this.dy = -this.dy;
-        }
+    };
 
-        this.x += this.dx;
-        this.y += this.dy;
-
-        //Interactivity
-        if (mouse.x - this.x < mouseDistance && mouse.x - this.x > -mouseDistance && mouse.y - this.y < mouseDistance && mouse.y - this.y > -mouseDistance){
-            if (this.radius < maxRadius) {
-                this.radius += 1;
-            }
-        }else if (this.radius > minRadius){
-            this.radius -= 1;
-        }
-
-        this.draw();
+    for ( var i = 0; i < imgs.length; i++ ) {
+        images[i] = new Image();
+        images[i].onabort = inc;
+        images[i].onerror = inc;
+        images[i].onload = inc;
+        images[i].src = imgs[i];
     }
 }
 
-var circleArray = [];
+var images = [];
 
-function init(){
-    circleArray = [];
-    for (var i = 0; i < 1000; i++) {
-        var radius = Math.random()*10 + 1;
-        var x = Math.random()*(innerWidth - radius*2) + radius;
-        var dx = (Math.random()-0.5)*5;
-        var y = Math.random()*(innerHeight - radius*2) + radius;
-        var dy = (Math.random()-0.5)*5;
+imgpreload(imgSource);
 
-        circleArray.push(new Circle(x, dx, y, dy, radius));
-    }
+function btnSleep(){
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.save();
+    context.drawImage(images[3], 0, 0);
+    context.restore();
 }
-
-function animate(){
-    requestAnimationFrame(animate);
-    c.clearRect(0, 0, innerWidth, innerHeight);
-
-    for (var i = 0; i < circleArray.length; i++) {
-        circleArray[i].update();
-    }
-}
-
-init();
-animate();
