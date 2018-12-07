@@ -8,12 +8,6 @@ canvas.height = 600;
 //Getting reference to the 2D drawing context
 var context = canvas.getContext("2d");
 
-//Setting the mouse object
-var mouse = {
-    x: undefined,
-    y: undefined
-}
-
 //Setting image height and width
 var imgWidth = 169;
 var imgHeight = 237;
@@ -44,6 +38,37 @@ var img = new Array(imgSource.length);
 var loadcount = 0;
 loadtotal = imgSource.length;
 
+var maxRotate = 0;
+
+//Event listener when mouse moves
+window.addEventListener("click", function(event){
+    var xMouse = event.x - 1/2*imgWidth;
+    var yMouse = event.y- 1/2*imgHeight;
+
+    if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) {
+        clickOnTurtle();
+    }else if (yMouse <= 482) {
+        walk(xMouse, yMouse);
+    }
+});
+
+//Event listener when window size is changed
+window.addEventListener("resize", function(){
+    canvas.width = window.innerWidth;
+    canvas.height = 600;
+
+    draw(xPos, yPos);
+});
+
+function resetArrays(){
+    coords = [];
+    rotate = [];
+    imageIndex = [];
+    sleep1 = [];
+    sleep2 = [];
+    sleep3 = [];
+}
+
 function loadImages() {
     for (var i=0; i<imgSource.length; i++) {
         var image = new Image();
@@ -59,38 +84,8 @@ function loadImages() {
     }
 }
 
-//Event listener when mouse moves
-window.addEventListener("click", function(event){
-    var xMouse = event.x - 1/2*imgWidth;
-    var yMouse = event.y- 1/2*imgHeight;
-
-    if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) {
-        clickOnTurtle();
-    }else if (yMouse <= 482) {
-        clickOnCanvas();
-    }
-});
-
-var maxRotate = 0;
-
-//Event listener when window size is changed
-window.addEventListener("resize", function(){
-    canvas.width = window.innerWidth;
-    canvas.height = 600;
-
-    draw(xPos, yPos);
-});
-
 function clickOnTurtle(){
-    mouse.x = event.x - 1/2*imgWidth;
-    mouse.y = event.y- 1/2*imgHeight;
-
-    coords = [];
-    rotate = [];
-    imageIndex = [];
-    sleep1 = [];
-    sleep2 = [];
-    sleep3 = [];
+    resetArrays();
 
     goingIntoShell = !goingIntoShell;
 
@@ -126,16 +121,8 @@ function clickOnTurtle(){
     nextFrame(0);
 }
 
-function clickOnCanvas(){
-    mouse.x = event.x - 1/2*imgWidth;
-    mouse.y = event.y- 1/2*imgHeight;
-
-    coords = [];
-    rotate = [];
-    imageIndex = [];
-    sleep1 = [];
-    sleep2 = [];
-    sleep3 = [];
+function walk(toX, toY){
+    resetArrays();
 
     if (currentImageIndex == 11) {
         draw(xPos, yPos, currentRotation, 0);
@@ -154,46 +141,53 @@ function clickOnCanvas(){
     }
 
     //Variables of the line between current position and mouse click
-    var m = (yPos-mouse.y)/(xPos-mouse.x);
+    if (xPos - toX == 0) {
+        var m = 80000;
+    }else{
+        var m = (yPos-toY)/(xPos-toX);
+    }
     var c = yPos-m*xPos;
 
     var division = 50;
 
-    if (mouse.x > xPos) {
-        if (mouse.y < yPos) {
-            var opp = Math.abs(mouse.x - xPos);
-            var adj = Math.abs(mouse.y - yPos);
+    if (toX > xPos) {
+        if (toY < yPos) {
+            var opp = Math.abs(toX - xPos);
+            var adj = Math.abs(toY - yPos);
             maxRotate = (Math.atan(opp/adj));
         }else{
-            var opp = Math.abs(mouse.y - yPos);
-            var adj = Math.abs(mouse.x - xPos);
+            var opp = Math.abs(toY - yPos);
+            var adj = Math.abs(toX - xPos);
 
             maxRotate = (Math.atan(opp/adj)) + (Math.PI/2);
         }
     }else {
-        if (mouse.y > yPos) {
-            var opp = Math.abs(mouse.x - xPos);
-            var adj = Math.abs(mouse.y - yPos);
+        if (toY > yPos) {
+            var opp = Math.abs(toX - xPos);
+            var adj = Math.abs(toY - yPos);
 
             maxRotate = (Math.atan(opp/adj)) + (Math.PI);
         }else{
-            var opp = Math.abs(mouse.y - yPos);
-            var adj = Math.abs(mouse.x - xPos);
+            var opp = Math.abs(toY - yPos);
+            var adj = Math.abs(toX - xPos);
 
             maxRotate = (Math.atan(opp/adj)) + (3*Math.PI/2);
         }
     }
 
     var clockwise = false;
-
-    for (var i = 0; i < 180; i++) {
-        if (modulo((currentRotation + i*(Math.PI/180)), (Math.PI*2)) <= maxRotate) {
-            if (modulo((currentRotation + (i+1)*(Math.PI/180)), (Math.PI*2)) >= maxRotate) {
-                clockwise = true;
+    if (walking != 0 && walking != 1) {
+        clockwise = true;
+    }else{
+        for (var i = 0; i < 180; i++) {
+            console.log(currentRotation + (Math.PI/2));
+            if (modulo((currentRotation + i*(Math.PI/180)), (Math.PI*2)) <= maxRotate) {
+                if (modulo((currentRotation + (i+1)*(Math.PI/180)), (Math.PI*2)) >= maxRotate) {
+                    clockwise = true;
+                }
             }
         }
     }
-
 
     if (clockwise == true) {
         var diffAngle = modulo((maxRotate - currentRotation), (Math.PI * 2));
@@ -211,29 +205,29 @@ function clickOnCanvas(){
 
     var speed = 3;
 
-    if (Math.abs(yPos-mouse.y)>Math.abs(xPos-mouse.x)) {
-        if (mouse.y > yPos) {
-            for (var yCurrent = yPos; yCurrent < mouse.y; yCurrent=yCurrent+speed) {
+    if (Math.abs(yPos-toY)>Math.abs(xPos-toX)) {
+        if (toY > yPos) {
+            for (var yCurrent = yPos; yCurrent < toY; yCurrent=yCurrent+speed) {
                 var xCurrent = (yCurrent - c)/m;
                 storeCoordinate(xCurrent, yCurrent, coords);
                 rotate.push(maxRotate);
             }
         }else{
-            for (var yCurrent = yPos; yCurrent > mouse.y; yCurrent=yCurrent-speed) {
+            for (var yCurrent = yPos; yCurrent > toY; yCurrent=yCurrent-speed) {
                 var xCurrent = (yCurrent - c)/m;
                 storeCoordinate(xCurrent, yCurrent, coords);
                 rotate.push(maxRotate);
             }
         }
     }else{
-        if (mouse.x > xPos) {
-            for (var xCurrent = xPos; xCurrent < mouse.x; xCurrent=xCurrent+speed) {
+        if (toX > xPos) {
+            for (var xCurrent = xPos; xCurrent < toX; xCurrent=xCurrent+speed) {
                 var yCurrent = m*xCurrent + c;
                 storeCoordinate(xCurrent, yCurrent, coords);
                 rotate.push(maxRotate);
             }
         }else{
-            for (var xCurrent = xPos; xCurrent > mouse.x; xCurrent=xCurrent-speed) {
+            for (var xCurrent = xPos; xCurrent > toX; xCurrent=xCurrent-speed) {
                 var yCurrent = m*xCurrent + c;
                 storeCoordinate(xCurrent, yCurrent, coords);
                 rotate.push(maxRotate);
@@ -252,7 +246,6 @@ function clickOnCanvas(){
     }
 
     nextFrame(0);
-
 }
 
 function btnReset(){
@@ -262,23 +255,13 @@ function btnReset(){
     currentImageIndex = 0;
     goingIntoShell = false;
 
-    coords = [];
-    rotate = [];
-    imageIndex = [];
-    sleep1 = [];
-    sleep2 = [];
-    sleep3 = [];
+    resetArrays();
 
     draw(xPos, yPos, currentRotation, 0);
 }
 
 function btnDance(){
-    coords = [];
-    rotate = [];
-    imageIndex = [];
-    sleep1 = [];
-    sleep2 = [];
-    sleep3 = [];
+    resetArrays();
 
     if (currentImageIndex == 11) {
         draw(xPos, yPos, currentRotation, 0);
@@ -393,12 +376,7 @@ function btnDance(){
 }
 
 function btnSleep(){
-    coords = [];
-    rotate = [];
-    imageIndex = [];
-    sleep1 = []
-    sleep2 = []
-    sleep3 = []
+    resetArrays();
 
     if (currentImageIndex == 11) {
         imageIndex.push(0);
@@ -447,8 +425,11 @@ function btnSleep(){
     nextFrame(0);
 }
 
-function btnWalk(){
+var walking = 0;
 
+function btnWalk(){
+    walking = 1;
+    walk(xPos - 100, yPos - 100);
 }
 
 function modulo(n, m) {
@@ -463,8 +444,20 @@ function storeCoordinate(xVal, yVal, array) {
 }
 
 function stop() {
-    if (requestId){
-        cancelAnimationFrame(requestId);
+    cancelAnimationFrame(requestId);
+
+    if (walking ==1) {
+        walking++;
+        walk(xPos + 200, yPos);
+    }else if (walking ==2) {
+        walking++;
+        walk(xPos, yPos + 200);
+    }else if (walking ==3) {
+        walking++;
+        walk(xPos - 200, yPos);
+    }else if (walking ==4) {
+        walk(xPos, yPos - 200);
+        walking = 0;
     }
 }
 
