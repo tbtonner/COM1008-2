@@ -1,29 +1,28 @@
 body{
-    margin: 0;
-    font-family: Calibri, sans-serif;
-    font-size: 1.35em;
+    margin: 0; /* Setting margin to 0 */
+    font-family: Calibri, sans-serif; /* Setting prefered fonts */
+    font-size: 1.35em; /* Standard text font size */
 }
 
 canvas{
-    border-bottom: 1px solid black;
-    height: 600px;
-    width: 100%;
+    border-bottom: 1px solid black; /* Black border on bottom of the canvas */
+    height: 600px; /* Canvas height */
+    width: 100%; /* Canvas width which expands across the entire screen */
 
-    background-image: url("background.jpg");
-	background-size: cover;
-	background-repeat: no-repeat;
+    background-image: url("background.jpg"); /* Background image (water) */
+	background-size: cover; /* Ensures background covers entire screen */
+	background-repeat: no-repeat; /* Ensures there isn't any repeating background */
 
 }
 
 #buttons{
-    margin: 0;
-    text-align: center;
+    text-align: center; /* Placing buttons in centre of screen */
 }
 
 main{
-    margin: 10px 50px;
+    margin: 10px 50px; /* Main margin for text */
 }
 
 h1{
-    font-size: 1.5em;
+    font-size: 1.5em; /* H1 tag font size */
 }
