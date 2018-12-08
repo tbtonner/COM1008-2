@@ -33,6 +33,7 @@ var walking = 0; //Walking state set to 0
 
 var coords = []; //Array for all coordinates
 var rotate = []; //Array for all rotations
+var imageIndex = []; //Array for all image index's
 var sleep1 = []; //Array for when first z shows
 var sleep2 = []; //Array for when second z shows
 var sleep3 = []; //Array for when third z shows
@@ -47,7 +48,7 @@ var img = new Array(imgSource.length);
 
 //Variables for loading all images and keeping track of where it's up to
 var loadcount = 0;
-loadtotal = imgSource.length;
+var loadtotal = imgSource.length;
 
 //Setting initial maxRotate variable to 0
 var maxRotate = 0;
@@ -60,14 +61,18 @@ window.addEventListener("click", function(event){
     var xMouse = event.x - 1/2*imgWidth;
     var yMouse = event.y- 1/2*imgHeight;
 
-    if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) { //If click was on turtle:
-        if  (Math.sqrt(Math.pow((yMouse - yPos), 2) + Math.pow((xMouse - xPos), 2)) >= 60){ //If click was not on turtle's shell
-            clickOnTurtleHead();
-        }else{
-            clickOnTurtleBody();
+    if (yMouse <= canvas.height - 1/2*imgHeight) {
+        if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) { //If click was on turtle:
+            if  (Math.sqrt(Math.pow((yMouse - yPos), 2) + Math.pow((xMouse - xPos), 2)) >= 60){ //If click was not on turtle's shell
+                clickOnTurtleHead();
+            }else{
+                clickOnTurtleBody();
+            }
+        }else{ //If mouse click was on canvas and not on turtle:
+            walking = 0;
+            stop();
+            walk(xMouse, yMouse);
         }
-    }else if (yMouse <= 482) { //If mouse click was on canvas and not on turtle:
-        walk(xMouse, yMouse);
     }
 });
 
@@ -76,7 +81,7 @@ window.addEventListener("resize", function(){
     canvas.width = window.innerWidth; //Change canvas' width
     canvas.height = 600; //Change canvas' height
 
-    btnReset();
+    btnReset(); //Reset all parts of canvas
 });
 
 //--------------------Simple functions--------------------//
@@ -110,17 +115,36 @@ function modulo(n, m) { //Function to calculate n mod m, avoiding negative numbe
 }
 
 function storeCoordinate(xVal, yVal, array) { //Function to store coordinates of the coords array
-    array.push({
+    array.push({ //Pushing xVal and yVal to array.x and array.y respectivley
         x: xVal,
         y: yVal
     });
 }
 
+function stop() { //Stop the animation frame
+    cancelAnimationFrame(requestId);
+
+    if (walking == 1) {
+        walking++;
+        walk(xPos + 200, yPos);
+    }else if (walking == 2) {
+        walking++;
+        walk(xPos, yPos + 200);
+    }else if (walking == 3) {
+        walking++;
+        walk(xPos - 200, yPos);
+    }else if (walking == 4) {
+        walk(xPos, yPos - 200);
+        walking = 0;
+    }
+}
+
 //--------------------Large functions--------------------//
 
 function clickOnTurtleHead(){ //When clicking on turtle's head
-    resetArrays();
     walking = 0;
+    stop();
+    resetArrays();
 
     //Clockwise fast circle roatation
     for (var i = 0; i <= 360/3; i++) {
@@ -134,8 +158,9 @@ function clickOnTurtleHead(){ //When clicking on turtle's head
 }
 
 function clickOnTurtleBody(){ //When clicking on turtle's body
-    resetArrays();
     walking = 0;
+    stop();
+    resetArrays();
 
     goingIntoShell = !goingIntoShell;
 
@@ -190,36 +215,40 @@ function walk(toX, toY){ //Function to walk from current position to (toX, toY) 
         }
     }
 
+    var m;
+
     //Variables of the line between current position and mouse click
     if (xPos - toX == 0) {
-        var m = 80000;
+        m = 80000;
     }else{
-        var m = (yPos-toY)/(xPos-toX);
+        m = (yPos-toY)/(xPos-toX);
     }
     var c = yPos-m*xPos;
 
     var division = 50;
+    var opp;
+    var adj;
 
     if (toX > xPos) {
         if (toY < yPos) {
-            var opp = Math.abs(toX - xPos);
-            var adj = Math.abs(toY - yPos);
+            opp = Math.abs(toX - xPos);
+            adj = Math.abs(toY - yPos);
             maxRotate = (Math.atan(opp/adj));
         }else{
-            var opp = Math.abs(toY - yPos);
-            var adj = Math.abs(toX - xPos);
+            opp = Math.abs(toY - yPos);
+            adj = Math.abs(toX - xPos);
 
             maxRotate = (Math.atan(opp/adj)) + (Math.PI/2);
         }
     }else {
         if (toY > yPos) {
-            var opp = Math.abs(toX - xPos);
-            var adj = Math.abs(toY - yPos);
+            opp = Math.abs(toX - xPos);
+            adj = Math.abs(toY - yPos);
 
             maxRotate = (Math.atan(opp/adj)) + (Math.PI);
         }else{
-            var opp = Math.abs(toY - yPos);
-            var adj = Math.abs(toX - xPos);
+            opp = Math.abs(toY - yPos);
+            adj = Math.abs(toX - xPos);
 
             maxRotate = (Math.atan(opp/adj)) + (3*Math.PI/2);
         }
@@ -238,14 +267,15 @@ function walk(toX, toY){ //Function to walk from current position to (toX, toY) 
         }
     }
 
+    var diffAngle;
     if (clockwise == true) {
-        var diffAngle = modulo((maxRotate - currentRotation), (Math.PI * 2));
+        diffAngle = modulo((maxRotate - currentRotation), (Math.PI * 2));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation + i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
         }
     }else {
-        var diffAngle = modulo((currentRotation - maxRotate), (Math.PI * 2));
+        diffAngle = modulo((currentRotation - maxRotate), (Math.PI * 2));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation - i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
@@ -306,14 +336,16 @@ function btnReset(){ //Resets entire screen
     walking = 0;
     imgDiff = 0;
 
+    stop();
     resetArrays();
 
     draw(xPos, yPos, currentRotation, 0, false, false, false);
 }
 
 function btnDance(){ //Makes the turtle dance
-    resetArrays();
     walking = 0;
+    stop();
+    resetArrays();
 
     if (currentImageIndex == 11 || currentImageIndex == 12) {
         draw(xPos, yPos, currentRotation, 0, false, false, false);
@@ -343,16 +375,17 @@ function btnDance(){ //Makes the turtle dance
         }
     }
 
+    var diffAngle;
 
     if (clockwise == true) {
-        var diffAngle = modulo((0 - currentRotation), (Math.PI * 2));
+        diffAngle = modulo((0 - currentRotation), (Math.PI * 2));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation + i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
             imageIndex.push(0);
         }
     }else {
-        var diffAngle = modulo((currentRotation - 0), (Math.PI * 2));
+        diffAngle = modulo((currentRotation - 0), (Math.PI * 2));
         for (var i = 0; i < division; i++) {
             rotate.push(modulo((currentRotation - i*diffAngle/division), (Math.PI*2)));
             storeCoordinate(xPos, yPos, coords);
@@ -428,8 +461,9 @@ function btnDance(){ //Makes the turtle dance
 }
 
 function btnSleep(){ //Makes the turtle sleep
-    resetArrays();
     walking = 0;
+    stop();
+    resetArrays();
 
     if (currentImageIndex == 11 || currentImageIndex == 12) {
         imageIndex.push(0);
@@ -479,26 +513,9 @@ function btnSleep(){ //Makes the turtle sleep
 }
 
 function btnWalk(){ //What happens when walk button is pressed
+    stop();
     walking = 1;
     walk(xPos - 100, yPos - 100);
-}
-
-function stop() { //Stop the animation frame
-    cancelAnimationFrame(requestId);
-
-    if (walking ==1) {
-        walking++;
-        walk(xPos + 200, yPos);
-    }else if (walking ==2) {
-        walking++;
-        walk(xPos, yPos + 200);
-    }else if (walking ==3) {
-        walking++;
-        walk(xPos - 200, yPos);
-    }else if (walking ==4) {
-        walk(xPos, yPos - 200);
-        walking = 0;
-    }
 }
 
 function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){ //Draw turtle and other items on screen with given peramters

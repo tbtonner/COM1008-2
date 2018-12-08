@@ -5,19 +5,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="style.css">
     <title>Canvas</title>
 </head>
 
 <body>
     <canvas id="canvas">Sorry, your browser does not support the canvas tag.</canvas>
+    <main>
+        <div id="buttons">
+            <button onClick="btnDance()" type="button">Dance</button>
+            <button onClick="btnSleep()" type="button">Sleep</button>
+            <button onClick="btnWalk()" type="button">Walk</button>
+            <button onClick="btnReset()" type="button">Reset</button>
+        </div>
+        <script src="canvas.js"></script>
 
-    <button onClick="btnDance()" type="button">Dance</button>
-    <button onClick="btnSleep()" type="button">Sleep</button>
-    <button onClick="btnWalk()" type="button">Walk</button>
-    <button onClick="btnReset()" type="button">Reset</button>
+        <h1>Buttons</h1>
+        <p>This is the list of buttons and what each one does with respect to the turtle and the canvas.</p>
+        <ul>
+            <li>Dance Button</li>
+            <p>
+                Clicking the Dance button will make the turtle dance in it's current location, first by spinning clockwise, then
+                anti-clockwise, moving side-to-side, then up and down, and finally a last clockwise spin.
+            </p>
 
-    <script src="canvas.js"></script>
+            <li>Sleep Button</li>
+            <p>
+                Clicking the Sleep button will make the Turtle close its eyes then fall asleep, with z's appearing above
+                the Turtle's head whilst he sleeps.
+            </p>
+
+            <li>Walk Button</li>
+            <p>
+                Clicking the Walk button makes the turtle walk in a square of length and width 200 with the centre of the
+                square in the Turtle's current position at the time of clicking.
+            </p>
+
+            <li>Reset Button</li>
+            <p>Clicking the Reset button will reset all of the canvas' assets to the original positions.</p>
+        </ul>
+
+        <h1>Clicking the Canvas</h1>
+        <p>
+            This is the list of different actions when clicking various parts of the canvas and what each
+            does with respect to the turtle and the canvas.
+         </p>
+         <ul>
+             <li>Click on Turtle Shell</li>
+             <p>
+                 Clicking the Turtle's shell will make the turtle go inside his shell, or if already inside his shell he will
+                 come out of his shell.
+             </p>
+
+             <li>Click on Turtle Head/Body</li>
+             <p>
+                 Clicking the Turtle's head or body will turn the Turtle into a laser Turtle, which will shoot laser's out of
+                 his eyes and he'll do a full clockwise turn shooting his lasers.
+             </p>
+
+             <li>Click anywhere else on canvas</li>
+             <p>
+                 Clicking anywhere else on the canvas will make the Turtle rotate to that position and then walk towards it.
+             </p>
+         </ul>
+    </main>
 </body>
 
 </html>

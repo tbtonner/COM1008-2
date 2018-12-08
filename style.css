@@ -1,15 +1,29 @@
+body{
+    margin: 0;
+    font-family: Calibri, sans-serif;
+    font-size: 1.35em;
+}
+
 canvas{
-    border: 1px solid black;
+    border-bottom: 1px solid black;
     height: 600px;
     width: 100%;
-    
+
     background-image: url("background.jpg");
 	background-size: cover;
 	background-repeat: no-repeat;
 
 }
 
-body{
+#buttons{
     margin: 0;
     text-align: center;
+}
+
+main{
+    margin: 10px 50px;
+}
+
+h1{
+    font-size: 1.5em;
 }
