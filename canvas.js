@@ -1,73 +1,87 @@
-//Reference from the HTML page
+//Get reference from the HTML page for canvas element
 var canvas = document.getElementById("canvas");
 
-//Set drawing surface of canvas  to same size as the canvas
+//Set drawing surface of canvas to same size as the canvas
 canvas.width = window.innerWidth;
 canvas.height = 600;
 
 //Getting reference to the 2D drawing context
 var context = canvas.getContext("2d");
 
-//Setting image height and width
+//--------------------Setting and defining all variables--------------------//
+
+//Setting image height and width of all images (excluding turtleLaser.png)
 var imgWidth = 169;
 var imgHeight = 237;
 
+//Setting imange differece between turtleLaser and all others to 0 (for now)
 var imgDiff = 0;
 
-//Request to stop ID
+//Request to stop ID variable
 var requestId;
 
 //Setting initial position of the turtle
 var xPos = (1/2 * canvas.width) - 1/2*imgWidth;
 var yPos = (1/2 * canvas.height) - 1/2*imgHeight;
+
+//Setting current rotation and the starting image index
 var currentRotation = 0;
 var currentImageIndex = 0;
 
-var goingIntoShell = false;
-var walking = 0;
+var goingIntoShell = false; //State to tell whether turtle is going into shell or going out
+var walking = 0; //Walking state set to 0
 
-//Array for all coordinates
-var coords = [];
-var rotate = [];
-var sleep1 = [];
-var sleep2 = [];
-var sleep3 = [];
+var coords = []; //Array for all coordinates
+var rotate = []; //Array for all rotations
+var sleep1 = []; //Array for when first z shows
+var sleep2 = []; //Array for when second z shows
+var sleep3 = []; //Array for when third z shows
 
+//All images used and their sources
 var imgSource = ["./turtle.png", "./turtleGoingToShell1.png", "./turtleGoingToShell2.png", "./turtleGoingToShell3.png",
 "./turtleGoingToShell4.png", "./turtleGoingToShell5.png", "./turtleGoingToShell6.png", "./turtleGoingToShell7.png",
  "./turtleGoingToShell8.png", "./turtleGoingToShell9.png", "./turtleInShell.png", "./turtleSleep.png", "./turtleLaser.png"];
 
+//Setting img array with the length equal to sources
 var img = new Array(imgSource.length);
+
+//Variables for loading all images and keeping track of where it's up to
 var loadcount = 0;
 loadtotal = imgSource.length;
 
+//Setting initial maxRotate variable to 0
 var maxRotate = 0;
+
+//--------------------Event listeners--------------------//
 
 //Event listener when mouse moves
 window.addEventListener("click", function(event){
+    //Current x and y positions of click
     var xMouse = event.x - 1/2*imgWidth;
     var yMouse = event.y- 1/2*imgHeight;
 
-    if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) {
-        if  (Math.sqrt(Math.pow((yMouse - yPos), 2) + Math.pow((xMouse - xPos), 2)) >= 60){
+    if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) { //If click was on turtle:
+        if  (Math.sqrt(Math.pow((yMouse - yPos), 2) + Math.pow((xMouse - xPos), 2)) >= 60){ //If click was not on turtle's shell
             clickOnTurtleHead();
         }else{
             clickOnTurtleBody();
         }
-    }else if (yMouse <= 482) {
+    }else if (yMouse <= 482) { //If mouse click was on canvas and not on turtle:
         walk(xMouse, yMouse);
     }
 });
 
 //Event listener when window size is changed
 window.addEventListener("resize", function(){
-    canvas.width = window.innerWidth;
-    canvas.height = 600;
+    canvas.width = window.innerWidth; //Change canvas' width
+    canvas.height = 600; //Change canvas' height
 
     btnReset();
 });
 
-function resetArrays(){
+//--------------------Simple functions--------------------//
+
+function resetArrays(){ //Function that resets all arrays to []
     coords = [];
     rotate = [];
     imageIndex = [];
@@ -76,7 +90,7 @@ function resetArrays(){
     sleep3 = [];
 }
 
-function loadImages() {
+function loadImages() { //Initial function to load all images
     for (var i=0; i<imgSource.length; i++) {
         var image = new Image();
         image.onload = function () {
@@ -91,7 +105,20 @@ function loadImages() {
     }
 }
 
-function clickOnTurtleHead(){
+function modulo(n, m) { //Function to calculate n mod m, avoiding negative numbers that you get when using %
+    return ((n % m) + m) % m;
+}
+
+function storeCoordinate(xVal, yVal, array) { //Function to store coordinates of the coords array
+    array.push({
+        x: xVal,
+        y: yVal
+    });
+}
+
+//--------------------Large functions--------------------//
+
+function clickOnTurtleHead(){ //When clicking on turtle's head
     resetArrays();
     walking = 0;
 
@@ -106,14 +133,14 @@ function clickOnTurtleHead(){
 
 }
 
-function clickOnTurtleBody(){
+function clickOnTurtleBody(){ //When clicking on turtle's body
     resetArrays();
     walking = 0;
 
     goingIntoShell = !goingIntoShell;
 
     if (currentImageIndex == 11 || currentImageIndex == 12) {
-        draw(xPos, yPos, currentRotation, 0);
+        draw(xPos, yPos, currentRotation, 0, false, false, false);
         currentImageIndex = 0;
     }
 
@@ -144,11 +171,11 @@ function clickOnTurtleBody(){
     nextFrame(0);
 }
 
-function walk(toX, toY){
+function walk(toX, toY){ //Function to walk from current position to (toX, toY) coordinates with animation
     resetArrays();
 
     if (currentImageIndex == 11 || currentImageIndex == 12) {
-        draw(xPos, yPos, currentRotation, 0);
+        draw(xPos, yPos, currentRotation, 0, false, false, false);
         currentImageIndex = 0;
     }
 
@@ -270,7 +297,7 @@ function walk(toX, toY){
     nextFrame(0);
 }
 
-function btnReset(){
+function btnReset(){ //Resets entire screen
     xPos = (1/2 * canvas.width) - 1/2*imgWidth;
     yPos = (1/2 * canvas.height) - 1/2*imgHeight;
     currentRotation = 0;
@@ -281,15 +308,15 @@ function btnReset(){
 
     resetArrays();
 
-    draw(xPos, yPos, currentRotation, 0);
+    draw(xPos, yPos, currentRotation, 0, false, false, false);
 }
 
-function btnDance(){
+function btnDance(){ //Makes the turtle dance
     resetArrays();
     walking = 0;
 
     if (currentImageIndex == 11 || currentImageIndex == 12) {
-        draw(xPos, yPos, currentRotation, 0);
+        draw(xPos, yPos, currentRotation, 0, false, false, false);
         currentImageIndex = 0;
     }
 
@@ -400,7 +427,7 @@ function btnDance(){
     nextFrame(0);
 }
 
-function btnSleep(){
+function btnSleep(){ //Makes the turtle sleep
     resetArrays();
     walking = 0;
 
@@ -451,23 +478,12 @@ function btnSleep(){
     nextFrame(0);
 }
 
-function btnWalk(){
+function btnWalk(){ //What happens when walk button is pressed
     walking = 1;
     walk(xPos - 100, yPos - 100);
 }
 
-function modulo(n, m) {
-    return ((n % m) + m) % m;
-}
-
-function storeCoordinate(xVal, yVal, array) {
-    array.push({
-        x: xVal,
-        y: yVal
-    });
-}
-
-function stop() {
+function stop() { //Stop the animation frame
     cancelAnimationFrame(requestId);
 
     if (walking ==1) {
@@ -485,7 +501,7 @@ function stop() {
     }
 }
 
-function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){
+function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){ //Draw turtle and other items on screen with given peramters
 
     if (imgIndex == 12) {
         imgDiff = 215;
@@ -517,7 +533,7 @@ function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){
 
 }
 
-function nextFrame(i) {
+function nextFrame(i) { //Changing for each animation frame
     if (coords.length == 0){
         return;
     }
@@ -538,4 +554,5 @@ function nextFrame(i) {
     }
 }
 
-loadImages();
+//--------------------Initial Run Code--------------------//
+loadImages(); //Loads all images and draws the first initial image on canvas
