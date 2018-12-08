@@ -12,6 +12,8 @@ var context = canvas.getContext("2d");
 var imgWidth = 169;
 var imgHeight = 237;
 
+var imgDiff = 0;
+
 //Request to stop ID
 var requestId;
 
@@ -22,6 +24,7 @@ var currentRotation = 0;
 var currentImageIndex = 0;
 
 var goingIntoShell = false;
+var walking = 0;
 
 //Array for all coordinates
 var coords = [];
@@ -46,7 +49,11 @@ window.addEventListener("click", function(event){
     var yMouse = event.y- 1/2*imgHeight;
 
     if (Math.abs(xMouse - xPos) < 1/2*imgWidth &&  Math.abs(yMouse - yPos) < 1/2*imgHeight) {
-        clickOnTurtle();
+        if  (Math.sqrt(Math.pow((yMouse - yPos), 2) + Math.pow((xMouse - xPos), 2)) >= 60){
+            clickOnTurtleHead();
+        }else{
+            clickOnTurtleBody();
+        }
     }else if (yMouse <= 482) {
         walk(xMouse, yMouse);
     }
@@ -57,7 +64,7 @@ window.addEventListener("resize", function(){
     canvas.width = window.innerWidth;
     canvas.height = 600;
 
-    draw(xPos, yPos);
+    btnReset();
 });
 
 function resetArrays(){
@@ -84,12 +91,28 @@ function loadImages() {
     }
 }
 
-function clickOnTurtle(){
+function clickOnTurtleHead(){
     resetArrays();
+    walking = 0;
+
+    //Clockwise fast circle roatation
+    for (var i = 0; i <= 360/3; i++) {
+        rotate.push(modulo((currentRotation+(i*(Math.PI/180))*3), (Math.PI*2)));
+        storeCoordinate(xPos, yPos, coords);
+        imageIndex.push(12);
+    }
+
+    nextFrame(0);
+
+}
+
+function clickOnTurtleBody(){
+    resetArrays();
+    walking = 0;
 
     goingIntoShell = !goingIntoShell;
 
-    if (currentImageIndex == 11) {
+    if (currentImageIndex == 11 || currentImageIndex == 12) {
         draw(xPos, yPos, currentRotation, 0);
         currentImageIndex = 0;
     }
@@ -124,7 +147,7 @@ function clickOnTurtle(){
 function walk(toX, toY){
     resetArrays();
 
-    if (currentImageIndex == 11) {
+    if (currentImageIndex == 11 || currentImageIndex == 12) {
         draw(xPos, yPos, currentRotation, 0);
         currentImageIndex = 0;
     }
@@ -180,7 +203,6 @@ function walk(toX, toY){
         clockwise = true;
     }else{
         for (var i = 0; i < 180; i++) {
-            console.log(currentRotation + (Math.PI/2));
             if (modulo((currentRotation + i*(Math.PI/180)), (Math.PI*2)) <= maxRotate) {
                 if (modulo((currentRotation + (i+1)*(Math.PI/180)), (Math.PI*2)) >= maxRotate) {
                     clockwise = true;
@@ -254,6 +276,8 @@ function btnReset(){
     currentRotation = 0;
     currentImageIndex = 0;
     goingIntoShell = false;
+    walking = 0;
+    imgDiff = 0;
 
     resetArrays();
 
@@ -262,8 +286,9 @@ function btnReset(){
 
 function btnDance(){
     resetArrays();
+    walking = 0;
 
-    if (currentImageIndex == 11) {
+    if (currentImageIndex == 11 || currentImageIndex == 12) {
         draw(xPos, yPos, currentRotation, 0);
         currentImageIndex = 0;
     }
@@ -377,8 +402,9 @@ function btnDance(){
 
 function btnSleep(){
     resetArrays();
+    walking = 0;
 
-    if (currentImageIndex == 11) {
+    if (currentImageIndex == 11 || currentImageIndex == 12) {
         imageIndex.push(0);
         rotate.push(currentRotation);
         storeCoordinate(xPos, yPos, coords);
@@ -425,8 +451,6 @@ function btnSleep(){
     nextFrame(0);
 }
 
-var walking = 0;
-
 function btnWalk(){
     walking = 1;
     walk(xPos - 100, yPos - 100);
@@ -462,6 +486,13 @@ function stop() {
 }
 
 function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){
+
+    if (imgIndex == 12) {
+        imgDiff = 215;
+    }else {
+        imgDiff = 0;
+    }
+
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     context.save();
@@ -481,7 +512,7 @@ function draw(x, y, rotation, imgIndex, sleep_1, sleep_2, sleep_3){
         context.font = "75px Arial";
         context.fillText("Z",-150,-200);
     }
-    context.drawImage(img[imgIndex],-imgWidth/2,-imgHeight/2);
+    context.drawImage(img[imgIndex],-imgWidth/2,-imgHeight/2-imgDiff);
     context.restore();
 
 }
